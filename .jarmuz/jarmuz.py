@@ -1,10 +1,14 @@
 import sys
+import os
 
 from io import BytesIO
 from zipfile import ZipFile
 from urllib.request import urlopen
 
 import json
+
+jarmuz_dir = os.path.abspath(__file__).replace("/.jarmuzsource/jarmuz.py", "")
+print(jarmuz_dir)
 
 def installCIS(package_name):
     print("Installing " + package_name)
