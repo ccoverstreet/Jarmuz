@@ -1,12 +1,4 @@
 {
     "fart": "hi",
-    "installed_packages": [
-        {
-            "name": "ccoverstreet/CIS",
-            "version": 2.0,
-            "scriptname_unix": "CIS",
-            "sourcerepo": "https://github.com/ccoverstreet/CIS",
-            "build_directions": "make"
-        }
-    ]
+    "installed_packages": []
 }

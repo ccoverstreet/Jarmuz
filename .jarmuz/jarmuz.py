@@ -1,5 +1,6 @@
 import sys
 import os
+import shutil
 
 from io import BytesIO
 from zipfile import ZipFile
@@ -89,9 +90,7 @@ def remove_package(package_name):
     target_package = 0
     for i in range(0, len(jarmuzconfig["installed_packages"])):
         if jarmuzconfig["installed_packages"][i]["name"] == package_name:
-            print("Deleting {} package")
             target_package = jarmuzconfig["installed_packages"][i]
-            return
 
     # Remove bin script
     try:
@@ -101,7 +100,15 @@ def remove_package(package_name):
 
     # Remove source directory
     try:
-        os.rmtree(jarmuz_dir + "/.jarmuz/sources/" + target_package["name"])
+        shutil.rmtree(jarmuz_dir + "/.jarmuz/sources/" + target_package["name"].replace("..", ""))
+    except:
+        print("Unable to remove directory")
+
+    for i in range(0, len(jarmuzconfig["installed_packages"])):
+        if jarmuzconfig["installed_packages"][i]["name"] == package_name:
+            print("Deleting {} package")
+            del jarmuzconfig["installed_packages"][i]
+            write_jarmuzconfig(jarmuzconfig)
 
 
     
@@ -115,6 +122,9 @@ def main():
     for i in range(1, len(sys.argv)):
         if sys.argv[i] == "install":
             install_package(sys.argv[i + 1])
+        elif sys.argv[i] == "uninstall":
+            remove_package(sys.argv[i + 1])
+
 
 if __name__ == "__main__":
     main()
