@@ -1,6 +1,7 @@
 import sys
 import os
 import shutil
+import textwrap
 
 from io import BytesIO
 from zipfile import ZipFile
@@ -143,6 +144,24 @@ def list_commands():
     for name in filtered_names:
         print(name)
     
+def print_jarmuzinfo():
+    print("Jarmuz Application Download Interface")
+    print("Cale Overstreet")
+    print("December 10th, 2019")
+
+    argument_dict = {
+        "commands": "Prints all command names that can be used from the terminal (Be sure the installation directory of Jarmuz is added to your system path)",
+        "packages": "Prints the names of every installed package",
+        "install packagename": "Installs the specified package, Should be of the form authorname/programname",
+        "uninstall packagename": "Uninstalls the specified package. Should be of the form authorname/programname"
+    }
+
+    for key in argument_dict.keys():
+        prefix = "{:25s}".format(key)
+        preferredwidth = 80
+        wrapper = textwrap.TextWrapper(initial_indent=prefix, width=preferredwidth, subsequent_indent=' '*len(prefix))
+
+        print(wrapper.fill(argument_dict[key]))
 
 def main():
     if os.path.exists(jarmuz_dir + "/.jarmuz/jarmuzconfig.json"):
@@ -154,6 +173,8 @@ def main():
         jarmuzconfig = json.loads("{\"installed_packages\": []}")
         write_jarmuzconfig(jarmuzconfig)
 
+    if len(sys.argv) == 1:
+        print_jarmuzinfo()
 
     for i in range(1, len(sys.argv)):
         if sys.argv[i] == "install":
