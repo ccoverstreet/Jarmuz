@@ -36,7 +36,7 @@ def install_package(package_name):
     # Getting url object
     garden_res = 0
     try:
-        garden_res = urlopen("http://localhost:9420/fetchprogramdata?programname=" + package_name)
+        garden_res = urlopen("http://jarmuz.ngrok.io/fetchprogramdata?programname=" + package_name)
     except:
         print("Package not found in Jarmuz Garden")
         return
@@ -92,6 +92,10 @@ def remove_package(package_name):
         if jarmuzconfig["installed_packages"][i]["name"] == package_name:
             target_package = jarmuzconfig["installed_packages"][i]
 
+    if target_package == 0:
+        print("Unable to find package {}. Check your spelling or review .jarmuz/jarmuzconfig.json to check for innaccuracies".format(package_name))
+        return
+
     # Remove bin script
     try:
         os.remove(jarmuz_dir + "/" + target_package["scriptname_unix"])
@@ -106,7 +110,7 @@ def remove_package(package_name):
 
     for i in range(0, len(jarmuzconfig["installed_packages"])):
         if jarmuzconfig["installed_packages"][i]["name"] == package_name:
-            print("Deleting {} package")
+            print("Deleting {} package".format(target_package["name"]))
             del jarmuzconfig["installed_packages"][i]
             write_jarmuzconfig(jarmuzconfig)
 
