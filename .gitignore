@@ -1,9 +1,9 @@
 .jarmuz/sources/*
 *
+.jarmuz/*
 
 !*README*
 !jarmuz
 !.jarmuz
 !.gitignore
-
 
