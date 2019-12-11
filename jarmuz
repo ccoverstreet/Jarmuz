@@ -3,5 +3,3 @@
 
 ROOT_DIR=$(echo $BASH_SOURCE | sed s/jarmuz\//)
 python3 $ROOT_DIR/.jarmuz/jarmuz.py $@
-
-
