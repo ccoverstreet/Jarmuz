@@ -117,6 +117,7 @@ def remove_package(package_name):
             print("Deleting {} package".format(target_package["name"]))
             del jarmuzconfig["installed_packages"][i]
             write_jarmuzconfig(jarmuzconfig)
+            return
 
 def list_packages():
     package_list = []
