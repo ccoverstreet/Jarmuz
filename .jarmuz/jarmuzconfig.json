@@ -1,4 +1,19 @@
 {
     "fart": "hi",
-    "installed_packages": []
+    "installed_packages": [
+        {
+            "name": "ccoverstreet/CIS",
+            "version": 2.0,
+            "scriptname_unix": "CIS",
+            "sourcerepo": "https://github.com/ccoverstreet/CIS",
+            "build_directions": "make"
+        },
+        {
+            "name": "ccoverstreet/Jarmuz-Sql-Viewer",
+            "version": 1,
+            "scriptname_unix": "jarmuz-sqlviewer",
+            "sourcerepo": "https://github.com/ccoverstreet/Jarmuz-Sql-Viewer",
+            "build_directions": "echo No build steps needed"
+        }
+    ]
 }
