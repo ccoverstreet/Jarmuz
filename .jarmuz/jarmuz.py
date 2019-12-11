@@ -28,7 +28,7 @@ def write_jarmuzconfig(json_object):
 def install_package(package_name):
     split_package_name = package_name.split("/") # Split package name into author and repo name
 
-    print("Checking if package is installed...")
+    print("\nChecking if package is installed...")
     
     # Check to see if package is already installed
     for i in range(0, len(jarmuzconfig["installed_packages"])):
@@ -93,6 +93,7 @@ def install_package(package_name):
 def remove_package(package_name):
     # Check if package is installed
     target_package = 0
+    print()
     for i in range(0, len(jarmuzconfig["installed_packages"])):
         if jarmuzconfig["installed_packages"][i]["name"] == package_name:
             target_package = jarmuzconfig["installed_packages"][i]
@@ -179,9 +180,11 @@ def main():
 
     for i in range(1, len(sys.argv)):
         if sys.argv[i] == "install":
-            install_package(sys.argv[i + 1])
+            for j in range(i + 1, len(sys.argv)):
+                install_package(sys.argv[j])
         elif sys.argv[i] == "uninstall":
-            remove_package(sys.argv[i + 1])
+            for j in range(i + 1, len(sys.argv)):
+                remove_package(sys.argv[j])
         elif sys.argv[i] == "help":
             print_jarmuzinfo()
             return
