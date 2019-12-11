@@ -156,6 +156,7 @@ def print_jarmuzinfo():
         "uninstall packagename": "Uninstalls the specified package. Should be of the form authorname/programname"
     }
 
+    print()
     for key in argument_dict.keys():
         prefix = "{:25s}".format(key)
         preferredwidth = 80
@@ -181,6 +182,9 @@ def main():
             install_package(sys.argv[i + 1])
         elif sys.argv[i] == "uninstall":
             remove_package(sys.argv[i + 1])
+        elif sys.argv[i] == "help":
+            print_jarmuzinfo()
+            return
         elif sys.argv[i] == "commands":
             list_commands()
         elif sys.argv[i] == "packages":
