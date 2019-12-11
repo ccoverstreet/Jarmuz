@@ -114,8 +114,19 @@ def remove_package(package_name):
             del jarmuzconfig["installed_packages"][i]
             write_jarmuzconfig(jarmuzconfig)
 
-
 def list_packages():
+    package_list = []
+
+    for package in jarmuzconfig["installed_packages"]:
+        package_list.append(package["name"])
+
+    sorted_packages = sorted(package_list)
+
+    for package in sorted_packages:
+        print(package)
+
+
+def list_commands():
     filenames = os.listdir(jarmuz_dir)
     filtered_names = []
 
@@ -139,7 +150,9 @@ def main():
             install_package(sys.argv[i + 1])
         elif sys.argv[i] == "uninstall":
             remove_package(sys.argv[i + 1])
-        elif sys.argv[i] == "list":
+        elif sys.argv[i] == "commands":
+            list_commands()
+        elif sys.argv[i] == "packages":
             list_packages()
 
 
