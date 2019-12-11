@@ -1,5 +1,5 @@
 #!/bin/bash
 
 
-python3 .jarmuzsource/jarmuz.py $@
+python3 .jarmuz/jarmuz.py $@
 
