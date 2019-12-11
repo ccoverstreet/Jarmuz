@@ -15,7 +15,11 @@ jarmuz_dir = os.path.abspath(__file__).replace("/.jarmuz/jarmuz.py", "")
 
 
 def write_jarmuzconfig(json_object):
-    os.remove(jarmuz_dir + "/.jarmuz/jarmuzconfig.json")
+    try:
+        os.remove(jarmuz_dir + "/.jarmuz/jarmuzconfig.json")
+    except:
+        print("Didn't remove a pre-existing file")
+
     with open(jarmuz_dir + "/.jarmuz/jarmuzconfig.json", "w") as f:
         json.dump(json_object, f, indent=4) 
         
@@ -140,9 +144,14 @@ def list_commands():
     
 
 def main():
-    with open(jarmuz_dir + "/.jarmuz/jarmuzconfig.json") as f:
-        global jarmuzconfig
-        jarmuzconfig  = json.load(f)
+    if os.path.exists(jarmuz_dir + "/.jarmuz/jarmuzconfig.json"):
+        with open(jarmuz_dir + "/.jarmuz/jarmuzconfig.json") as f:
+            global jarmuzconfig
+            jarmuzconfig  = json.load(f)
+    else:
+        print("jarmuzconfig.json not found, creating one")
+        jarmuzconfig = json.loads("{\"installed_packages\": []}")
+        write_jarmuzconfig(jarmuzconfig)
 
 
     for i in range(1, len(sys.argv)):
