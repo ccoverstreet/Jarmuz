@@ -1,5 +1,6 @@
 import sys
 import os
+import platform
 import shutil
 import textwrap
 
@@ -9,10 +10,16 @@ from urllib.request import urlopen
 
 import json
 
+
 global jarmuzconfig
 
-
-jarmuz_dir = os.path.abspath(__file__).replace("/.jarmuz/jarmuz.py", "")
+if platform.system() == "Windows":
+    print("Windows")
+    OS_Type = "Windows"
+    jarmuz_dir = os.path.abspath(__file__).replace("\\.jarmuz\\jarmuz.py", "")
+else:
+    OS_Type = "Linux"
+    jarmuz_dir = os.path.abspath(__file__).replace("/.jarmuz/jarmuz.py", "")
 
 
 def write_jarmuzconfig(json_object):
@@ -22,20 +29,20 @@ def write_jarmuzconfig(json_object):
         print("Didn't remove a pre-existing file")
 
     with open(jarmuz_dir + "/.jarmuz/jarmuzconfig.json", "w") as f:
-        json.dump(json_object, f, indent=4) 
-        
+        json.dump(json_object, f, indent=4)
+
 
 def install_package(package_name):
     split_package_name = package_name.split("/") # Split package name into author and repo name
 
     print("\nChecking if package is installed...")
-    
+
     # Check to see if package is already installed
     for i in range(0, len(jarmuzconfig["installed_packages"])):
         if jarmuzconfig["installed_packages"][i]["name"] == package_name:
             print("'{}' is already installed. If you wish to repair it, run 'jarmuz repair packagename'".format(package_name))
             return
-            
+
     print("Package is not installed, sending request to Jarmuz Garden for package data")
 
     # Getting url object
@@ -56,19 +63,28 @@ def install_package(package_name):
 
     # Loading json string into object
     package_json_object = json.loads(package_json_string)
-    
+
     # Adding new package data to json
     jarmuzconfig["installed_packages"].append(package_json_object)
     write_jarmuzconfig(jarmuzconfig) # Writing new json to config file
 
     # Creating directory for source code
-    if os.path.exists(jarmuz_dir + "/.jarmuz/sources/" + split_package_name[0]):
-        os.mkdir(jarmuz_dir + "/.jarmuz/sources/" + split_package_name[0] + "/" + split_package_name[1])
-    else:
-        os.mkdir(jarmuz_dir + "/.jarmuz/sources/" + split_package_name[0]) 
-        os.mkdir(jarmuz_dir + "/.jarmuz/sources/" + split_package_name[0] + "/" + split_package_name[1]) 
+    if OS_Type == "Linux":
+        if os.path.exists(jarmuz_dir + "/.jarmuz/sources/" + split_package_name[0]):
+            os.mkdir(jarmuz_dir + "/.jarmuz/sources/" + split_package_name[0] + "/" + split_package_name[1])
+        else:
+            os.mkdir(jarmuz_dir + "/.jarmuz/sources/" + split_package_name[0]) 
+            os.mkdir(jarmuz_dir + "/.jarmuz/sources/" + split_package_name[0] + "/" + split_package_name[1]) 
 
-    package_dir = jarmuz_dir + "/.jarmuz/sources/" + package_name
+        package_dir = jarmuz_dir + "/.jarmuz/sources/" + package_name
+    elif OS_Type == "Windows":
+        if os.path.exists(jarmuz_dir + "\\.jarmuz\\sources\\" + split_package_name[0]):
+            os.mkdir(jarmuz_dir + "\\.jarmuz\\sources\\" + split_package_name[0] + "\\" + split_package_name[1])
+        else:
+            os.mkdir(jarmuz_dir + "\\.jarmuz\\sources\\" + split_package_name[0]) 
+            os.mkdir(jarmuz_dir + "\\.jarmuz\\sources\\" + split_package_name[0] + "\\" + split_package_name[1]) 
+
+        package_dir = jarmuz_dir + "\\.jarmuz\\sources\\" + split_package_name[0] + "\\" + split_package_name[1]
 
 
     # Cloning git repo
@@ -77,15 +93,24 @@ def install_package(package_name):
 
     # Running build commands
     print("\nRunning build commands")
-    os.system("cd " + package_dir + ";" + package_json_object["build_directions"])
+    print(package_dir)
+    os.system("cd " + package_dir + "&& " + package_json_object["build_directions"])
 
     # Adding command to the 'bin' location
-    with open(jarmuz_dir + "/" + package_json_object["scriptname_unix"], "w") as f:
-        for line in zipfile.open(package_json_object["scriptname_unix"]).readlines():
-            f.write(line.decode("utf-8").replace("PATH_TO_JARMUZ_PACKAGE", package_dir))
+    if OS_Type == "Linux":
+        with open(jarmuz_dir + "/" + package_json_object["scriptname_unix"], "w") as f:
+            for line in zipfile.open(package_json_object["scriptname_unix"]).readlines():
+                f.write(line.decode("utf-8").replace("PATH_TO_JARMUZ_PACKAGE", package_dir))
+    elif OS_Type == "Windows":
+        with open(jarmuz_dir + "\\" + package_json_object["scriptname_unix"], "w") as f:
+            for line in zipfile.open(package_json_object["scriptname_unix"]).readlines():
+                f.write(line.decode("utf-8").replace("PATH_TO_JARMUZ_PACKAGE", package_dir))
+
+
 
     # Making executable
-    os.chmod(jarmuz_dir + "/" + package_json_object["scriptname_unix"], 0o777)
+    if OS_Type == "Linux":
+        os.chmod(jarmuz_dir + "/" + package_json_object["scriptname_unix"], 0o777)
 
     print("\nFinished building {}, use '{}' to run.".format(package_name, package_json_object["scriptname_unix"]))
 
@@ -103,16 +128,29 @@ def remove_package(package_name):
         return
 
     # Remove bin script
-    try:
-        os.remove(jarmuz_dir + "/" + target_package["scriptname_unix"])
-    except:
-        print("Unable to remove {}".format(target_package["scriptname_unix"]))
+    if OS_Type == "Linux":
+        try:
+            os.remove(jarmuz_dir + "/" + target_package["scriptname_unix"])
+        except:
+            print("Unable to remove {}".format(target_package["scriptname_unix"]))
+    elif OS_Type == "Windows":
+        try:
+            os.remove(jarmuz_dir + "\\" + target_package["scriptname_unix"])
+        except:
+            print("Unable to remove {}".format(target_package["scriptname_unix"]))
 
     # Remove source directory
-    try:
-        shutil.rmtree(jarmuz_dir + "/.jarmuz/sources/" + target_package["name"].replace("..", ""))
-    except:
-        print("Unable to remove directory")
+    if OS_Type == "Linux":
+        try:
+            shutil.rmtree(jarmuz_dir + "/.jarmuz/sources/" + target_package["name"].replace("..", ""))
+        except:
+            print("Unable to remove directory")
+    elif OS_Type == "Windows":
+        try:
+            os.system("rmdir /S /Q " + jarmuz_dir + "\\.jarmuz\\sources\\" + target_package["name"].replace("..", "").replace("/", "\\"))
+        except:
+            print("Unable to remove directory")
+
 
     for i in range(0, len(jarmuzconfig["installed_packages"])):
         if jarmuzconfig["installed_packages"][i]["name"] == package_name:
