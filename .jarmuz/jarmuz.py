@@ -14,7 +14,6 @@ import json
 global jarmuzconfig
 
 if platform.system() == "Windows":
-    print("Windows")
     OS_Type = "Windows"
     jarmuz_dir = os.path.abspath(__file__).replace("\\.jarmuz\\jarmuz.py", "")
 else:
