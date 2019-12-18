@@ -101,10 +101,9 @@ def install_package(package_name):
             for line in zipfile.open(package_json_object["scriptname_unix"]).readlines():
                 f.write(line.decode("utf-8").replace("PATH_TO_JARMUZ_PACKAGE", package_dir))
     elif OS_Type == "Windows":
-        with open(jarmuz_dir + "\\" + package_json_object["scriptname_unix"], "w") as f:
-            for line in zipfile.open(package_json_object["scriptname_unix"]).readlines():
+        with open(jarmuz_dir + "\\" + package_json_object["scriptname_windows"], "w") as f:
+            for line in zipfile.open(package_json_object["scriptname_windows"]).readlines():
                 f.write(line.decode("utf-8").replace("PATH_TO_JARMUZ_PACKAGE", package_dir))
-
 
 
     # Making executable
@@ -134,9 +133,9 @@ def remove_package(package_name):
             print("Unable to remove {}".format(target_package["scriptname_unix"]))
     elif OS_Type == "Windows":
         try:
-            os.remove(jarmuz_dir + "\\" + target_package["scriptname_unix"])
+            os.remove(jarmuz_dir + "\\" + target_package["scriptname_windows"])
         except:
-            print("Unable to remove {}".format(target_package["scriptname_unix"]))
+            print("Unable to remove {}".format(target_package["scriptname_windows"]))
 
     # Remove source directory
     if OS_Type == "Linux":
