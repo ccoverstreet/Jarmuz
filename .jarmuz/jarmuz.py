@@ -116,7 +116,7 @@ def install_package(package_name):
 def remove_package(package_name):
     # Check if package is installed
     target_package = 0
-    print()
+
     for i in range(0, len(jarmuzconfig["installed_packages"])):
         if jarmuzconfig["installed_packages"][i]["name"] == package_name:
             target_package = jarmuzconfig["installed_packages"][i]
@@ -130,32 +130,36 @@ def remove_package(package_name):
         try:
             os.remove(jarmuz_dir + "/" + target_package["scriptname_unix"])
         except:
-            print("Unable to remove {}".format(target_package["scriptname_unix"]))
+            print("Unable to remove start script for {}".format(target_package["scriptname_unix"]))
     elif OS_Type == "Windows":
         try:
             os.remove(jarmuz_dir + "\\" + target_package["scriptname_windows"])
         except:
-            print("Unable to remove {}".format(target_package["scriptname_windows"]))
+            print("Unable to remove start script for {}".format(target_package["scriptname_windows"]))
 
     # Remove source directory
     if OS_Type == "Linux":
         try:
             shutil.rmtree(jarmuz_dir + "/.jarmuz/sources/" + target_package["name"].replace("..", ""))
         except:
-            print("Unable to remove directory")
+            print("Unable to remove directory for {}".format(package_name))
     elif OS_Type == "Windows":
         try:
             os.system("rmdir /S /Q " + jarmuz_dir + "\\.jarmuz\\sources\\" + target_package["name"].replace("..", "").replace("/", "\\"))
         except:
-            print("Unable to remove directory")
+            print("Unable to remove directory for {}".format(package_name))
 
 
     for i in range(0, len(jarmuzconfig["installed_packages"])):
         if jarmuzconfig["installed_packages"][i]["name"] == package_name:
-            print("Deleting {} package".format(target_package["name"]))
+            print("Deleting {} package entry from jarmuzconfig.json".format(target_package["name"]))
             del jarmuzconfig["installed_packages"][i]
             write_jarmuzconfig(jarmuzconfig)
             return
+
+def reinstall_package(package_name):
+    remove_package(package_name)
+    install_package(package_name)
 
 def list_packages():
     package_list = []
@@ -221,6 +225,9 @@ def main():
         elif sys.argv[i] == "uninstall":
             for j in range(i + 1, len(sys.argv)):
                 remove_package(sys.argv[j])
+        elif sys.argv[i] == "reinstall":
+            for j in range(i + 1, len(sys.argv)):
+                reinstall_package(sys.argv[j])
         elif sys.argv[i] == "help":
             print_jarmuzinfo()
             return
