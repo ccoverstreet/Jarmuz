@@ -1,0 +1,6 @@
+build:
+  - ls
+  - echo "Did something"
+
+artifacts:
+  - ./test.sh

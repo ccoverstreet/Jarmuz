@@ -1,0 +1,172 @@
+#!/usr/bin/env python3
+
+import yaml
+import argparse
+import sys
+import subprocess
+import os
+import copy
+HOMEDIR = os.path.expanduser("~")
+CONFIG_FILE = HOMEDIR + "/.config/jarmuz/config.yaml"
+STOREDIR = HOMEDIR + "/.local/share/jarmuz"
+
+
+def main():
+    config = None
+    config_orig = None
+
+    os.makedirs(HOMEDIR + "/jbin", exist_ok=True)
+    os.makedirs(HOMEDIR + "/.config/jarmuz", exist_ok=True)
+
+    if not os.path.exists(CONFIG_FILE):
+        print("WRITING DEFAULT")
+        with open(CONFIG_FILE, "w") as f:
+            f.write("packages: {}\n")
+
+    with open(CONFIG_FILE) as f:
+        config = yaml.load(f.read(), yaml.Loader)
+        config_orig = copy.deepcopy(config)
+
+    args = sys.argv[1:]
+    if len(args) < 1:
+        print_help()
+        return
+
+    subcommand = args[0]
+
+    if subcommand == "install":
+        subcommand_install(config, args[1:])
+    elif subcommand == "remove":
+        subcommand_remove(config, args[1:])
+    elif subcommand == "list":
+        print_list(config)
+
+    if config != None and config != config_orig:
+        with open(CONFIG_FILE, "w") as f:
+            f.write(yaml.dump(config))
+
+    
+def load_yaml(filepath):
+    with open(filepath) as f:
+        return yaml.load(f.read(), yaml.Loader)
+
+def print_help():
+    print("HELP")
+
+def print_list(config):
+    for p in config["packages"]:
+        print(p)
+
+def subcommand_install(config, args):
+    print("INSTALL SUBCOMMAND")
+    if len(args) == 0:
+        return
+
+    path = args[0]
+
+    if "github.com" in path:
+        path_no_http_or_tag = path.replace("https://", "").replace("http://", "").split("@")[0]
+        path_no_http = path.replace("https://", "").replace("http://", "")
+        tag = path.split("@")[1] if "@" in path else None
+
+        os.makedirs(STOREDIR+"/"+path_no_http, exist_ok=True)
+
+        clone_repo("https://"+path_no_http_or_tag, tag, STOREDIR + "/" + path_no_http)
+        yamlfile = STOREDIR+"/"+path_no_http+"/jarmuz.yaml"
+
+        data = load_yaml(yamlfile)
+        build_and_install(data, yamlfile)
+
+        path = path_no_http
+    else:
+        yamlfile = path  + "/jarmuz.yaml"
+        path = os.path.abspath(path)
+        with open(yamlfile) as f:
+            contents = f.read()
+
+        data = yaml.load(contents, yaml.Loader)
+        print(data)
+        build_and_install(data, yamlfile)
+
+    config["packages"][path] = {
+        "location": path
+    }
+
+
+def clone_repo(url, tag, directory):
+    res = None
+    if tag != None:
+        res = subprocess.run(["git", "clone", url, "--branch", tag, "."], cwd=directory,
+                             capture_output=True)
+    else:
+        res = subprocess.run(["git", "clone", url, "."], cwd=directory,
+                             capture_output=True)
+
+    if res.returncode != 0:
+        raise Exception("Unable to clone repository\n"+res.stderr.decode("utf-8"))
+
+
+def build_and_install(p_config, filepath):
+    print("Running build commands")
+    print("======================\n")
+
+    dirname = os.path.dirname(os.path.abspath(filepath))
+
+    if p_config["build"] != None:
+        for command in p_config["build"]:
+            print(command)
+            proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=dirname)
+            proc.wait()
+            if proc.returncode != 0:
+                raise Exception("Unable to complete build process. Output below.\n" + proc.stderr.read().decode("utf-8"))
+
+    print("\n======================")
+    print("Finished build process\n")
+
+    print("Installing artifacts")
+
+    for artifact in p_config["artifacts"]:
+        abspath = os.path.abspath(dirname + "/" + artifact)
+        base = os.path.basename(artifact)
+
+        print(f"Installing artifact \"{base}\"")
+        proc = subprocess.run(["ln", "-s", abspath, HOMEDIR+"/jbin/"+base], 
+                              capture_output=True, cwd=dirname)
+        if proc.returncode != 0:
+            raise Exception("Unable to link artifacts:\n" + proc.stderr.decode("utf-8"))
+
+
+
+    
+def subcommand_remove(config, args):
+    print("REMOVE SUBCOMMAND")
+    if len(args) == 0:
+        
+        return
+
+    package = args[0]
+    if package not in config["packages"]:
+        raise Exception(f"Package \"{package}\" does not exist in config file")
+
+    conf = config["packages"][package]
+    loc = conf["location"]
+
+    if "github.com" in loc:
+        pos = STOREDIR + "/" + loc + "/jarmuz.yaml"
+        p_conf = load_yaml(pos)
+    else:
+        p_conf = load_yaml(loc+"/jarmuz.yaml")
+
+    for a in p_conf["artifacts"]:
+        filename = os.path.basename(a)
+        subprocess.run(["rm", HOMEDIR + "/jbin/" + filename])
+
+    if not loc.startswith("/home"):
+        print("REMOVING DOWNLOADED")
+        subprocess.run(["rm", "-rf", STOREDIR + "/" + loc])
+
+    del config["packages"][package]
+
+
+if __name__ == "__main__":
+    main()
