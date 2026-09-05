@@ -12,4 +12,16 @@ artifacts:
     - there/can/be/multiple/per/config/file
 ```
 
-Installed utilities are stored in `~/.local/share/jarmuz` and a config is saved in `~/.config/jarmuz/config.yaml`.
+Installed utilities are stored in `~/.local/share/jarmuz` and a config is saved in `~/.config/jarmuz/config.yaml`. 
+
+All artifacts are symlinked to `~/jbin`.
+
+## Installing
+
+```
+git clone https://github.com/ccoverstreet/Jarmuz
+cd Jarmuz
+./jarmuz install .
+```
+
+Add `~/jbin` to your path where applicable.
