@@ -38,6 +38,8 @@ def main():
         subcommand_install(config, args[1:])
     elif subcommand == "remove":
         subcommand_remove(config, args[1:])
+    elif subcommand == "update":
+        subcommand_update(config, args[1:] if len(args) > 1 else [])
     elif subcommand == "list":
         print_list(config)
     elif subcommand == "commands":
@@ -149,7 +151,6 @@ def build_and_install(p_config, filepath):
     
 def subcommand_remove(config, args):
     if len(args) == 0:
-        
         return
 
     package = args[0]
@@ -173,6 +174,22 @@ def subcommand_remove(config, args):
         subprocess.run(["rm", "-rf", STOREDIR + "/" + loc])
 
     del config["packages"][package]
+
+def subcommand_update(config, args):
+    print("ARGS", args)
+
+    if len(args) == 0:
+        # Update all packages. Useful when reinstalling from an existing config
+
+        packages = list(config["packages"].keys())
+        print(packages)
+        for p in packages:
+            print(p)
+            try:
+                subcommand_install(config, [p])
+            except Exception as e:
+                print(e)
+
 
 
 if __name__ == "__main__":
