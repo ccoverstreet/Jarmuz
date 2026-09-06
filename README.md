@@ -25,3 +25,23 @@ cd Jarmuz
 ```
 
 Add `~/jbin` to your path where applicable.
+
+## Using
+
+```
+git clone https://gitrepourl.whatever@tag
+```
+or
+
+```
+git clone https://gitrepourl.whatever
+```
+for cloning main branch
+
+## Updating/Reinstalling
+
+```
+jarmuz update
+```
+
+When provided with no arguments, `jarmuz update` will attempt to reinstall all packages. This is useful when copying a config to another device/environment and setting up your CLI utilities.
