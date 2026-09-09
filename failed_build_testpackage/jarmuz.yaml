@@ -1,0 +1,7 @@
+build:
+  - echo "Trying to make build fail"
+  - make
+  - echo "Finished building"
+
+artifacts:
+  - failedbuild.txt

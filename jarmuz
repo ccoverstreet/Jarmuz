@@ -44,6 +44,8 @@ def main():
         print_list(config)
     elif subcommand == "commands":
         print_commands(config)
+    elif subcommand in ["help", "--help", "-h"]:
+        print_help()
 
 
     if config != None and config != config_orig:
@@ -56,7 +58,14 @@ def load_yaml(filepath):
         return yaml.load(f.read(), yaml.Loader)
 
 def print_help():
-    print("HELP")
+    print("Jarmuz CLI Utility")
+    print("Available commands:")
+    print("\tinstall <package>\tinstall a package either from a git url or local directory")
+    print("\tremove <package>\tremove a package")
+    print("\tupdate <package>\tUpdate specified package. Updates all if not specified")
+    print("\tlist            \tlists installed packages")
+    print("\tcommand         \tlists all packages and artifacts")
+    print()
 
 def print_list(config):
     for p in config["packages"]:
