@@ -6,6 +6,7 @@ import sys
 import subprocess
 import os
 import copy
+import shutil
 HOMEDIR = os.path.expanduser("~")
 CONFIG_FILE = HOMEDIR + "/.config/jarmuz/config.yaml"
 STOREDIR = HOMEDIR + "/.local/share/jarmuz"
@@ -91,6 +92,11 @@ def subcommand_install(config, args):
         path_no_http = path.replace("https://", "").replace("http://", "")
         tag = path.split("@")[1] if "@" in path else None
 
+        try:
+            shutil.rmtree(STOREDIR + "/" + path_no_http)
+        except Exception as e:
+            print("No prior git tree to remove", e)
+
         os.makedirs(STOREDIR+"/"+path_no_http, exist_ok=True)
 
         clone_repo("https://"+path_no_http_or_tag, tag, STOREDIR + "/" + path_no_http)
@@ -151,7 +157,14 @@ def build_and_install(p_config, filepath):
         abspath = os.path.abspath(dirname + "/" + artifact)
         base = os.path.basename(artifact)
 
+
         print(f"Installing artifact \"{base}\"")
+
+        try:
+            os.remove(HOMEDIR+"/jbin/"+base)
+        except Exception as e:
+            print("No prior link to remove")
+
         proc = subprocess.run(["ln", "-s", abspath, HOMEDIR+"/jbin/"+base], 
                               capture_output=True, cwd=dirname)
         if proc.returncode != 0:
