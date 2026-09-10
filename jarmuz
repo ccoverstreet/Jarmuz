@@ -212,6 +212,12 @@ def subcommand_update(config, args):
             except Exception as e:
                 print(e)
 
+    else:
+        for a in args:
+            try:
+                subcommand_install(config, [a])
+            except Exception as e:
+                print(e)
 
 
 if __name__ == "__main__":
