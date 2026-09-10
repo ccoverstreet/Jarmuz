@@ -81,11 +81,16 @@ def print_list(config):
         print(p)
 
 def print_commands(config):
+    max_len = 0
+    for p in config["packages"]:
+        for a in config["packages"][p]["artifacts"]:
+            max_len = max(max_len, len(a))
+
+
     print("Available commands:")
     for p in config["packages"]:
-        print(p)
         for a in config["packages"][p]["artifacts"]:
-            print("\t"+a)
+            print(f"{a:{max_len}} -> {p}")
 
 def subcommand_install(config, args):
     print("INSTALL SUBCOMMAND")
