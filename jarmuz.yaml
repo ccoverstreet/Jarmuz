@@ -1,4 +1,5 @@
 build:
+  - which uv
 
 artifacts:
   - jarmuz
