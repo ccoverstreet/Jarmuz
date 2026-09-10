@@ -21,7 +21,7 @@ All artifacts are symlinked to `~/jbin`.
 ```
 git clone https://github.com/ccoverstreet/Jarmuz
 cd Jarmuz
-./jarmuz install .
+./jarmuz install github.com/ccoverstreet/Jarmuz
 ```
 
 Add `~/jbin` to your path where applicable.
